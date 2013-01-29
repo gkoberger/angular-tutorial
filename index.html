@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Step by step from jQuery to AngularJS</title>
+    <link rel="stylesheet" type="text/css" href="css/normalize.css" />
+    <link rel="stylesheet" type="text/css" href="css/style.less" />
+    <!--[if IE]>
+    <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+
+  <body id="home">
+
+    <h1>Step by step from jQuery to AngularJS</h1>
+    <h2>by <a href="http://gkoberger.net">Gregory Koberger</a></h2>
+    <section>
+    <h2>Why?</h2>
+    <p>After reading the recent article <a href="https://github.com/kjbekkelund/writings/blob/master/published/understanding-backbone.md">Step by step from jQuery
+      to Backbone</a>, I was a bit put off about how the 16 lines of readable jQuery was transformed into 43 lines of mostly incomprehensible Backbone.
+    Something struck me about it: it often seemed to be abstraction for the sake of abstraction, with few benefits. I had
+    recently begun playing with <a href="http://angularjs.org">AngularJS</a>, and wanted to do a similar tutorial. I'll start with the same jQuery, and transform it into
+    Angular code.</p>
+
+  <p>In a way, this is comparing apples to oranges. The authors of the Backbone version took the refactoring to the extremes. I'm more interested in creating a
+    simplified version, to show how quickly you can use Angular to make a relatively advanced app.</p>
+
+  <p><em>Note: The Angular code in this tutorial is heavily taken from the tutorials on <a href="http://angularjs.org/">AngularJS.org</a>, which is completely
+      worth checking out. I threw this tutorial together quickly and wanted to use JSFiddle, so I appologize in advance for the aesthetics :)</em></p>
+
+  <h2>Original jQuery</h2>
+
+    <p>We've started with the same exact code as the original article, with a few slight modifications:</p>
+    <ol>
+      <li>The HTML is important in Angular, so we're using JSFiddle to show everything off.</li>
+      <li>In order to make the code run-able, we had to make some small modifications to work with JSFiddle's AJAX API.</li>
+    </ol>
+
+    <iframe style="width: 100%; height: 300px" src="http://jsfiddle.net/gkoberger/ws9RR/3/embedded/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+
+    <h2>Let's make things more interesting</h2>
+    <p>We want to show off some cool Angular features, so let's turn this into a todo list.</p>
+    <p>Let's add a checkbox before each item, as well as a counter of remaining tasks at the top. We also want to append "Done!" to the end of each completed
+      task. While admittedly not the most optimized jQuery example, you can still note how much DOM manipulation is required for these relatively simple tasks.</p>
+
+    <iframe style="width: 100%; height: 300px" src="http://jsfiddle.net/gkoberger/ws9RR/2/embedded/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+
+    <h2>Setting up an Angular Controller and a repeater</h2>
+    <p>From here on out, <strong>make sure you look at the HTML</strong>. While jQuery or Backbone doesn't really need HTML to illustrate their core concepts,
+      Angular moves most of the logic into the HTML.</p>
+    <p>We start by adding <code>ng-app</code> to the parent-most div, to indicate the active portion of the app. Most apps would put this on the html tag, however JSFiddle
+      won't let us.</p>
+    <p>Next, we define the controller by adding <code>ng-controller="TodoCtrl"</code> to the section of the page we want to work with. The naming is unimportant,
+      however it conventionally ends with "Controller" or "Ctrl". It just has to match up with the name of a function in our JS.</p>
+    <p>In the JavaScript, we define <code>TodoCtrl</code>. Note how we pass in <code>$scope</code> as the first paramater. We also define <code>$scope.todos</code>,
+      which could be seeded with data if we wanted to.</p>
+    <p>We've given the checkbox a <code>ng-model</code>, which we'll talk about in a bit.</p>
+    <p>Next, we're going to add a repeater into the HTML. Any changes we make to <code>$scope.todos</code> will be reflected in the HTML.</p>
+    <p><em>Note: Unfortunately, this demo doesn't work since we're only halfway there.</em></p>
+
+    <iframe style="width: 100%; height: 300px" src="http://jsfiddle.net/gkoberger/ws9RR/6/embedded/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+
+    <h2>Implementing the Form</h2>
+    <p>At this point, we'll completely remove the form submission from the jQuery version, and replace it with our own.</p>
+    <p>We put a <code>ng-submit="addTodo()"</code> into the HTML, and define it in the JavaScript as <code>$scope.addTodo()</code></p>
+
+    <p>We can add a new <code>&lt;li&gt;</code> simply by <code>push</code>ing it to the <code>$scope.todos</code> array.</p>
+    <p>Note how we don't have to do <code>$('#new-status').val()</code> to get/set the value of that text box. We've bound it to <code>$scope.todoText</code> by giving it a <code>ng-model="todoText"</code>. If you update either the variable or the input field, the changes will be synced.</p>
+
+    <iframe style="width: 100%; height: 300px" src="http://jsfiddle.net/gkoberger/ws9RR/5/embedded/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+
+    <h2>Update remaining Todos</h2>
+    <p>We're already come pretty far, with minimal JavaScript. To add a count of the remaining todos, we just put <span>{{ remaining() }}</span> right into the HTML. Angular will update it whenever a new todo is added.</p>
+    <p>The <code>remaining()</code> implementation is relatively straightforward.</p>
+
+    <iframe style="width: 100%; height: 300px" src="http://jsfiddle.net/gkoberger/ws9RR/7/embedded/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+
+    <h2>Show "Done!" on checked items</h2>
+    <p>Almost the same as above, but inside the repeater.</p>
+
+    <iframe style="width: 100%; height: 300px" src="http://jsfiddle.net/gkoberger/ws9RR/9/embedded/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+
+    <h2>Talking to the server</h2>
+    <p>Okay, you caught me: I left out the AJAX part. Since I converted the demo to a todo list, it didn't make sense to only save the updates while adding. If
+      you have a todo list, you want to save everything, including the state of each checkbox. For this, check out the official tutorial: <a
+        href="http://angularjs.org/#wire-up-a-backend">Wire up a Backend</a>.
+    </p>
+
+    <h2>Other awesome stuff</h2>
+    <p>Let's look at some other cool things we can do with only a few lines of code.</p>
+    <p>First, we're going to order the todos alphabetically by adding <code>| orderBy:'text'</code> to the repeatable. With a minor HTML change and no changes
+      to our JavaScript, we can order our list however we please.</p>
+    <p>Next, we're going to make the list filterable by "all", "done" and "not done". We simply define <code>$scope.filterCriteria={}</code> in the JS, add <code>| filter:filterCriteria</code> to the repeatable, and
+      add links with the approperiate variant of <code>ng-click="filterCriteria.done=true"</code> as an attribute. With just a few lines of code, we have a
+      filter that works like a charm.</p>
+
+    <iframe style="width: 100%; height: 300px" src="http://jsfiddle.net/gkoberger/ws9RR/10/embedded/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+
+    <h2>In conclusion&hellip;</h2>
+    <p>When learning Backbone (and again when reading the <a href="https://github.com/kjbekkelund/writings/blob/master/published/understanding-backbone.md">article
+      in question</a>), I couldn't shake the feeling that Backbone was often abstraction for the sake of abstraction. It never really made my life easier or my
+    code easier to write; it simply gave me a skeleton for how things <em>should</em> probably be done.</p>
+  <p>The point of this article wasn't to give a fair, one-to-one comparison of syntax or line count. Rather, the point was to show off how different the
+    approaches of the two frameworks are. Angular's two way data binding is nothing short of <strong>magical</strong>. Note that not once did we manually touch
+    the DOM. In fact, if you're touching the DOM at any point, you're probably doing something wrong. Rather, you update the "models" (in this example, just an
+    array of JSON) and everything is kept in sync.</p>
+  <p>Naturally, this is a pretty basic implementation: I wanted to show off what Angular can do, not necessarily to show off best practices. Things get much
+    more complicated when you start building a real app that syncs data to a server.</p>
+  <p>Hopefully this quick introduction to Angular helped!</p>
+    </section>
+
+    <script src="js/lib/jquery.js"></script>
+    <!-- <script src="js/lib/jquery.lightbox_me.js"></script> -->
+
+    <script src="js/script.js"></script>
+
+    <script src="js/lib/less_setup.js"></script>
+    <script src="js/lib/less.js"></script>
+  </body>
+</html>
